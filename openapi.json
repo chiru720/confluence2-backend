@@ -27,7 +27,7 @@
                 "schema": {
                   "example": {
                     "status": "ok",
-                    "timestamp": "2025-04-21T09:14:10.515Z",
+                    "timestamp": "2025-04-21T11:15:59.041Z",
                     "uptime": 1234,
                     "version": "1.0.0",
                     "environment": "development",

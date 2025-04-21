@@ -211,7 +211,7 @@ The project includes scripts to handle OpenAPI specification generation and inte
    ```bash
    yarn openapi:copy
    ```
-   This copies the generated OpenAPI spec to the frontend project at `../conf-2/openapi/openapi.json`.
+   This copies the generated OpenAPI spec to the frontend project at `../conf-2/api-docs/openapi.json`.
 
 3. **Generate and Copy in One Step**:
    ```bash

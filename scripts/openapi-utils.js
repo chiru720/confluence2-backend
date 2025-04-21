@@ -48,7 +48,7 @@ function getFrontendDir() {
  */
 function getFrontendOpenApiPath() {
   const frontendDir = getFrontendDir();
-  return path.join(frontendDir, 'openapi', 'openapi.json');
+  return path.join(frontendDir, 'api-docs', 'openapi.json');
 }
 
 /**
