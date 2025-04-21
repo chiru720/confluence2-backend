@@ -1,0 +1,596 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/api/v1": {
+      "get": {
+        "operationId": "AppController_getHello",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "App"
+        ]
+      }
+    },
+    "/api/v1/health": {
+      "get": {
+        "operationId": "HealthController_check",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Health check successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "status": "ok",
+                    "timestamp": "2025-04-21T09:14:10.515Z",
+                    "uptime": 1234,
+                    "version": "1.0.0",
+                    "environment": "development",
+                    "details": {
+                      "api": {
+                        "status": "up",
+                        "responseTime": 0.45
+                      },
+                      "database": {
+                        "status": "up",
+                        "responseTime": 2.21
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Get API health status",
+        "tags": [
+          "Health"
+        ]
+      }
+    },
+    "/api/v1/documents": {
+      "post": {
+        "operationId": "DocumentsController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateDocumentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Document created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Document"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Create a new document",
+        "tags": [
+          "documents"
+        ]
+      },
+      "get": {
+        "operationId": "DocumentsController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Returns all accessible documents",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Document"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Get all accessible documents",
+        "tags": [
+          "documents"
+        ]
+      }
+    },
+    "/api/v1/documents/{id}": {
+      "get": {
+        "operationId": "DocumentsController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Document ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns the document",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Document"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Document not found"
+          }
+        },
+        "summary": "Get document by ID",
+        "tags": [
+          "documents"
+        ]
+      },
+      "patch": {
+        "operationId": "DocumentsController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Document ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateDocumentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Document updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Document"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Update a document",
+        "tags": [
+          "documents"
+        ]
+      },
+      "delete": {
+        "operationId": "DocumentsController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Document ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Document deleted successfully"
+          }
+        },
+        "summary": "Delete a document",
+        "tags": [
+          "documents"
+        ]
+      }
+    },
+    "/api/v1/users": {
+      "post": {
+        "operationId": "UsersController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUserDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The user has been created successfully."
+          },
+          "400": {
+            "description": "Bad Request."
+          }
+        },
+        "summary": "Create a new user",
+        "tags": [
+          "users"
+        ]
+      },
+      "get": {
+        "operationId": "UsersController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Return all users."
+          }
+        },
+        "summary": "Get all users",
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/api/v1/users/{id}": {
+      "get": {
+        "operationId": "UsersController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Return the user."
+          },
+          "404": {
+            "description": "User not found."
+          }
+        },
+        "summary": "Get a user by id",
+        "tags": [
+          "users"
+        ]
+      },
+      "put": {
+        "operationId": "UsersController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The user has been updated successfully."
+          },
+          "404": {
+            "description": "User not found."
+          }
+        },
+        "summary": "Update a user",
+        "tags": [
+          "users"
+        ]
+      },
+      "delete": {
+        "operationId": "UsersController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "The user has been deleted successfully."
+          },
+          "404": {
+            "description": "User not found."
+          }
+        },
+        "summary": "Delete a user",
+        "tags": [
+          "users"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "Confluence 2.0 API",
+    "description": "API documentation for Confluence 2.0",
+    "version": "1.0.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http"
+      }
+    },
+    "schemas": {
+      "CreateDocumentDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Document title"
+          },
+          "content": {
+            "type": "string",
+            "description": "Document content"
+          },
+          "type": {
+            "type": "string",
+            "description": "Document type (e.g., note, wiki, etc.)"
+          },
+          "collaborators": {
+            "description": "List of user IDs who can access this document",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "tags": {
+            "description": "Tags associated with the document",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "isPublic": {
+            "type": "boolean",
+            "description": "Whether the document is public or private",
+            "default": false
+          },
+          "parentId": {
+            "type": "string",
+            "description": "Parent document ID (for hierarchical structure)"
+          },
+          "spaceId": {
+            "type": "string",
+            "description": "Space/project the document belongs to"
+          }
+        },
+        "required": [
+          "title",
+          "content",
+          "type",
+          "isPublic"
+        ]
+      },
+      "Document": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier for the document"
+          },
+          "title": {
+            "type": "string",
+            "description": "Document title"
+          },
+          "content": {
+            "type": "string",
+            "description": "Document content"
+          },
+          "type": {
+            "type": "string",
+            "description": "Document type (e.g., note, wiki, etc.)"
+          },
+          "ownerId": {
+            "type": "string",
+            "description": "Owner/creator of the document"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "When the document was created"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "When the document was last updated"
+          },
+          "collaborators": {
+            "description": "List of user IDs who can access this document",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "tags": {
+            "description": "Tags associated with the document",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "isPublic": {
+            "type": "boolean",
+            "description": "Whether the document is public or private"
+          },
+          "parentId": {
+            "type": "string",
+            "description": "Parent document ID (for hierarchical structure)"
+          },
+          "spaceId": {
+            "type": "string",
+            "description": "Space/project the document belongs to"
+          },
+          "version": {
+            "type": "number",
+            "description": "Document version number"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "content",
+          "type",
+          "ownerId",
+          "createdAt",
+          "updatedAt",
+          "collaborators",
+          "tags",
+          "isPublic",
+          "parentId",
+          "spaceId",
+          "version"
+        ]
+      },
+      "UpdateDocumentDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Document title"
+          },
+          "content": {
+            "type": "string",
+            "description": "Document content"
+          },
+          "type": {
+            "type": "string",
+            "description": "Document type (e.g., note, wiki, etc.)"
+          },
+          "collaborators": {
+            "description": "List of user IDs who can access this document",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "tags": {
+            "description": "Tags associated with the document",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "isPublic": {
+            "type": "boolean",
+            "description": "Whether the document is public or private"
+          },
+          "parentId": {
+            "type": "string",
+            "description": "Parent document ID (for hierarchical structure)"
+          },
+          "spaceId": {
+            "type": "string",
+            "description": "Space/project the document belongs to"
+          }
+        }
+      },
+      "CreateUserDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "User's email address"
+          },
+          "name": {
+            "type": "string",
+            "description": "User's full name"
+          },
+          "avatarUrl": {
+            "type": "string",
+            "description": "User's profile picture URL"
+          },
+          "role": {
+            "type": "string",
+            "description": "User's role",
+            "enum": [
+              "admin",
+              "editor",
+              "viewer"
+            ],
+            "default": "viewer"
+          },
+          "googleId": {
+            "type": "string",
+            "description": "Google ID for OAuth login"
+          }
+        },
+        "required": [
+          "email",
+          "name",
+          "role"
+        ]
+      },
+      "UpdateUserDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "User's email address"
+          },
+          "name": {
+            "type": "string",
+            "description": "User's full name"
+          },
+          "avatarUrl": {
+            "type": "string",
+            "description": "User's profile picture URL"
+          },
+          "role": {
+            "type": "string",
+            "description": "User's role",
+            "enum": [
+              "admin",
+              "editor",
+              "viewer"
+            ]
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "Whether the user is active"
+          }
+        }
+      }
+    }
+  }
+}

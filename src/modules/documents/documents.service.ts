@@ -1,45 +1,42 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository, In } from 'typeorm';
 import { Document } from './entities/document.entity';
 import { CreateDocumentDto } from './dto/create-document.dto';
 import { UpdateDocumentDto } from './dto/update-document.dto';
 
 @Injectable()
 export class DocumentsService {
-  // Mock data to simulate database storage
-  private documents: Document[] = [];
+  constructor(
+    @InjectRepository(Document)
+    private documentRepository: Repository<Document>
+  ) {}
 
   async create(createDocumentDto: CreateDocumentDto, userId: string): Promise<Document> {
-    const newDocument: Document = {
-      id: Date.now().toString(),
-      title: createDocumentDto.title,
-      content: createDocumentDto.content,
-      type: createDocumentDto.type,
+    const newDocument = this.documentRepository.create({
+      ...createDocumentDto,
       ownerId: userId,
-      collaborators: createDocumentDto.collaborators || [],
-      tags: createDocumentDto.tags || [],
-      isPublic: createDocumentDto.isPublic || false,
-      parentId: createDocumentDto.parentId,
-      spaceId: createDocumentDto.spaceId,
-      createdAt: new Date(),
-      updatedAt: new Date(),
       version: 1
-    };
+    });
 
-    this.documents.push(newDocument);
-    return newDocument;
+    return this.documentRepository.save(newDocument);
   }
 
   async findAll(userId: string): Promise<Document[]> {
     // Return documents that the user has access to (owned, collaborator, or public)
-    return this.documents.filter(doc => 
-      doc.ownerId === userId || 
-      doc.collaborators?.includes(userId) || 
-      doc.isPublic
-    );
+    return this.documentRepository.find({
+      where: [
+        { ownerId: userId },
+        { collaborators: userId },
+        { isPublic: true }
+      ]
+    });
   }
 
   async findOne(id: string, userId: string): Promise<Document> {
-    const document = this.documents.find(doc => doc.id === id);
+    const document = await this.documentRepository.findOne({
+      where: { id }
+    });
     
     if (!document) {
       throw new NotFoundException(`Document with ID ${id} not found`);
@@ -56,13 +53,7 @@ export class DocumentsService {
   }
 
   async update(id: string, updateDocumentDto: UpdateDocumentDto, userId: string): Promise<Document> {
-    const documentIndex = this.documents.findIndex(doc => doc.id === id);
-    
-    if (documentIndex === -1) {
-      throw new NotFoundException(`Document with ID ${id} not found`);
-    }
-
-    const document = this.documents[documentIndex];
+    const document = await this.findOne(id, userId);
 
     // Only owner can update the document
     if (document.ownerId !== userId) {
@@ -72,37 +63,43 @@ export class DocumentsService {
     const updatedDocument = {
       ...document,
       ...updateDocumentDto,
-      updatedAt: new Date(),
       version: document.version + 1
     };
 
-    this.documents[documentIndex] = updatedDocument;
-    return updatedDocument;
+    return this.documentRepository.save(updatedDocument);
   }
 
   async remove(id: string, userId: string): Promise<void> {
-    const documentIndex = this.documents.findIndex(doc => doc.id === id);
-    
-    if (documentIndex === -1) {
-      throw new NotFoundException(`Document with ID ${id} not found`);
-    }
-
-    const document = this.documents[documentIndex];
+    const document = await this.findOne(id, userId);
 
     // Only owner can delete the document
     if (document.ownerId !== userId) {
       throw new ForbiddenException('Only the owner can delete this document');
     }
 
-    this.documents.splice(documentIndex, 1);
+    await this.documentRepository.remove(document);
   }
 
   async findByTags(tags: string[], userId: string): Promise<Document[]> {
     // Find documents that have at least one of the specified tags
     // and that the user has access to
-    return this.documents.filter(doc => 
-      (doc.tags?.some(tag => tags.includes(tag))) && 
-      (doc.ownerId === userId || doc.collaborators?.includes(userId) || doc.isPublic)
-    );
+    return this.documentRepository
+      .createQueryBuilder('document')
+      .where('document.ownerId = :userId', { userId })
+      .orWhere('document.collaborators LIKE :userId', { userId: `%${userId}%` })
+      .orWhere('document.isPublic = :isPublic', { isPublic: true })
+      .andWhere(qb => {
+        const conditions = tags.map((tag, index) => {
+          return `document.tags LIKE :tag${index}`;
+        });
+        return conditions.join(' OR ');
+      })
+      .setParameters(
+        tags.reduce((params, tag, index) => {
+          params[`tag${index}`] = `%${tag}%`;
+          return params;
+        }, {})
+      )
+      .getMany();
   }
 } 

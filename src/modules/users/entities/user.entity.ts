@@ -1,40 +1,33 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { Column, Entity } from 'typeorm';
+import { BaseEntity } from '../../../core/database/entities/base.entity';
 
-export class User {
-  @ApiProperty({ description: 'Unique identifier' })
-  id: string;
+export enum UserRole {
+  ADMIN = 'admin',
+  EDITOR = 'editor',
+  VIEWER = 'viewer',
+}
 
-  @ApiProperty({ description: 'User\'s first name' })
-  firstName: string;
-
-  @ApiProperty({ description: 'User\'s last name' })
-  lastName: string;
-
-  @ApiProperty({ description: 'User\'s email address' })
+@Entity('users')
+export class User extends BaseEntity {
+  @Column({ unique: true })
   email: string;
 
-  @ApiProperty({ description: 'User\'s password (hashed)' })
-  password?: string;
+  @Column()
+  name: string;
 
-  @ApiProperty({ description: 'User\'s profile picture URL' })
-  profilePicture?: string;
+  @Column({ nullable: true })
+  avatarUrl?: string;
 
-  @ApiProperty({ description: 'User\'s role (admin, user)' })
-  role: string;
+  @Column({
+    type: 'enum',
+    enum: UserRole,
+    default: UserRole.VIEWER,
+  })
+  role: UserRole;
 
-  @ApiProperty({ description: 'When the user was created' })
-  createdAt: Date;
-
-  @ApiProperty({ description: 'When the user was last updated' })
-  updatedAt: Date;
-
-  @ApiProperty({ description: 'When the user last logged in' })
-  lastLoginAt?: Date;
-
-  @ApiProperty({ description: 'Whether the user is active' })
+  @Column({ default: false })
   isActive: boolean;
 
-  // For OAuth
-  @ApiProperty({ description: 'Google ID for OAuth' })
+  @Column({ nullable: true })
   googleId?: string;
 } 

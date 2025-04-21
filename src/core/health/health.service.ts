@@ -1,59 +1,59 @@
 import { Injectable } from '@nestjs/common';
 import { HealthCheckResult } from './interfaces/health-check-result.interface';
-import { ConfigService } from '../../common/config/config.service';
+import { InjectDataSource } from '@nestjs/typeorm';
+import { DataSource } from 'typeorm';
+import { ConfigService } from '../../config/config.service';
 
 @Injectable()
 export class HealthService {
-  constructor(private configService: ConfigService) {}
+  constructor(
+    @InjectDataSource() private dataSource: DataSource,
+    private configService: ConfigService
+  ) {}
 
   async check(): Promise<HealthCheckResult> {
-    const startTime = Date.now();
-    
-    // Get application information
+    const startTime = performance.now();
+    const version = process.env.npm_package_version || this.configService.get('SWAGGER_CONFIG.VERSION', '1.0.0');
     const environment = this.configService.nodeEnv;
-    const version = '1.0.0'; // This should come from package.json ideally
+    const uptime = process.uptime();
+
+    // Check database connection
+    let dbStatus: 'up' | 'down' = 'down';
+    let dbResponseTime = 0;
     
-    // Build the response
-    const result: HealthCheckResult = {
-      status: 'ok',
+    try {
+      if (this.dataSource && this.dataSource.isInitialized) {
+        const dbStartTime = performance.now();
+        await this.dataSource.query('SELECT 1');
+        dbResponseTime = this.calculateResponseTime(dbStartTime);
+        dbStatus = 'up';
+      } else {
+        console.warn('Database connection is not initialized');
+      }
+    } catch (error) {
+      console.error('Database health check failed:', error);
+    }
+
+    return {
+      status: dbStatus === 'up' ? 'ok' : 'error',
       timestamp: new Date().toISOString(),
-      uptime: process.uptime(),
+      uptime,
       version,
       environment,
       details: {
         api: {
-          status: 'ok',
-          responseTime: this.calculateResponseTime(startTime),
+          status: 'up',
+          responseTime: this.calculateResponseTime(startTime)
         },
-        // Example of how to check database status:
-        // database: await this.checkDatabaseStatus(),
-      },
+        database: {
+          status: dbStatus,
+          responseTime: dbResponseTime
+        }
+      }
     };
-
-    return result;
   }
 
   private calculateResponseTime(startTime: number): number {
-    return Date.now() - startTime;
+    return parseFloat((performance.now() - startTime).toFixed(2));
   }
-
-  // Example database health check method
-  /*
-  private async checkDatabaseStatus(): Promise<{ status: string; responseTime: number }> {
-    const startTime = Date.now();
-    try {
-      // Query to check database connection
-      // await this.dataSource.query('SELECT 1');
-      return {
-        status: 'ok',
-        responseTime: this.calculateResponseTime(startTime),
-      };
-    } catch (error) {
-      return {
-        status: 'error',
-        responseTime: this.calculateResponseTime(startTime),
-      };
-    }
-  }
-  */
 } 

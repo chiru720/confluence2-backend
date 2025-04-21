@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common';
 import { HealthController } from './health.controller';
 import { HealthService } from './health.service';
-import { ConfigModule } from '../../common/config/config.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { ConfigModule } from '../../config/config.module';
 
 @Module({
-  imports: [ConfigModule],
+  imports: [TypeOrmModule.forFeature(), ConfigModule],
   controllers: [HealthController],
   providers: [HealthService],
   exports: [HealthService],

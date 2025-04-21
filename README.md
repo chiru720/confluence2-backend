@@ -87,14 +87,18 @@ The API includes the following endpoints:
 
 ## Available Scripts
 
-- `npm run start` - Start production server
-- `npm run start:dev` - Start development server with hot reload
-- `npm run start:debug` - Start server in debug mode
-- `npm run build` - Build for production
-- `npm run lint` - Run linting
-- `npm run format` - Format code with Prettier
-- `npm run test` - Run unit tests
-- `npm run test:e2e` - Run end-to-end tests
+- `yarn start` - Start production server
+- `yarn start:dev` - Start development server with hot reload
+- `yarn start:debug` - Start server in debug mode
+- `yarn build` - Build for production
+- `yarn lint` - Run linting
+- `yarn format` - Format code with Prettier
+- `yarn test` - Run unit tests
+- `yarn test:e2e` - Run end-to-end tests
+- `yarn openapi:generate` - Generate OpenAPI specification
+- `yarn openapi:copy` - Copy OpenAPI spec to frontend
+- `yarn openapi:update-frontend` - Generate and copy OpenAPI spec in one step
+- `yarn generate:client` - Generate API client from OpenAPI spec
 
 ## Future Enhancements
 
@@ -104,6 +108,128 @@ The API includes the following endpoints:
 - Real-time collaboration with WebSockets
 - Redis caching for improved performance
 
+## Database Migrations
+
+This project uses TypeORM migrations to manage database schema changes. Migrations run manually using the provided scripts.
+
+### Important: Database Synchronization vs Migrations
+
+There are two ways to handle database schema changes:
+
+1. **Synchronization Mode** (`DATABASE_SYNCHRONIZE=true`)
+   - Automatically updates database schema to match entity definitions
+   - **Only use during early development**
+   - **Never use in production** - it can cause data loss!
+   - Set to `false` before deploying or when working with real data
+
+2. **Migrations** (recommended)
+   - Makes explicit, versioned schema changes
+   - Safe for production use
+   - Provides rollback capability
+   - Set `DATABASE_SYNCHRONIZE=false` and use migrations
+
+### Running Migrations
+
+To apply all pending migrations:
+
+```bash
+yarn migration:run
+```
+
+### Creating Migrations
+
+There are two ways to create migrations:
+
+1. **Generate from entity changes** (recommended):
+   ```bash
+   # Create a migration based on entity changes
+   yarn migration:generate ./src/core/database/migrations/MigrationName
+   ```
+
+2. **Create an empty migration**:
+   ```bash
+   # Create an empty migration file
+   yarn migration:create
+   ```
+
+For example:
+```bash
+yarn migration:generate ./src/core/database/migrations/CreateUsersTable
+```
+
+### Reverting Migrations
+
+To revert the last applied migration:
+
+```bash
+yarn migration:revert
+```
+
+### Migration Best Practices
+
+1. Always run migrations in development before deploying
+2. Test both up and down migrations
+3. Commit migration files to version control
+4. Don't modify existing migrations that have been applied to production
+5. Use descriptive names for migrations
+
+### Example Migration Workflow
+
+1. Make changes to your entity files (e.g., add a new column)
+2. Generate migration: `yarn migration:generate ./src/core/database/migrations/AddUserEmailVerified`
+3. Review the generated migration file 
+4. Run the migration: `yarn migration:run`
+5. Commit the migration file to version control
+
 ## License
 
 [MIT](LICENSE)
+
+## API Documentation
+
+### Swagger UI
+
+Swagger UI is available at [http://localhost:3333/api/v1/docs](http://localhost:3333/api/v1/docs) when the server is running in development mode. It provides an interactive documentation for all API endpoints.
+
+### OpenAPI JSON
+
+The OpenAPI specification JSON is available at:
+- URL: [http://localhost:3333/api/v1/openapi.json](http://localhost:3333/api/v1/openapi.json)
+- File: `./openapi.json` (generated automatically in development mode)
+
+### Generating and Using OpenAPI Specification
+
+The project includes scripts to handle OpenAPI specification generation and integration with the frontend:
+
+1. **Generate OpenAPI Specification**:
+   ```bash
+   yarn openapi:generate
+   ```
+   This builds the application and generates an `openapi.json` file in the project root.
+
+2. **Copy OpenAPI Spec to Frontend**:
+   ```bash
+   yarn openapi:copy
+   ```
+   This copies the generated OpenAPI spec to the frontend project at `../conf-2/openapi/openapi.json`.
+
+3. **Generate and Copy in One Step**:
+   ```bash
+   yarn openapi:update-frontend
+   ```
+   This combines both steps - generates the OpenAPI spec and copies it to the frontend.
+
+4. **Generate TypeScript Client**:
+   ```bash
+   yarn generate:client
+   ```
+   This generates an Axios-based TypeScript client in `./src/client` using [openapi-typescript-codegen](https://github.com/ferdikoomen/openapi-typescript-codegen).
+
+### Frontend Integration
+
+The OpenAPI specification is copied to the frontend project's `openapi` directory, where it can be used to:
+
+- Generate type-safe API clients
+- Provide accurate typing for API responses and requests
+- Ensure frontend-backend contract consistency
+- Support API documentation tools

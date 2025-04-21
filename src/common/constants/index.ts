@@ -2,16 +2,21 @@
  * Application constants
  */
 
-export const API_PREFIX = 'api';
-export const API_VERSION = 'v1';
-export const DEFAULT_PORT = 3333;
-
-export const JWT = {
-  SECRET: 'jwt-secret',
-  EXPIRES_IN: '1d',
-  REFRESH_EXPIRES_IN: '7d',
+// These will come from config, defined here only as fallbacks
+export const API_DEFAULT = {
+  PREFIX: 'api',
+  VERSION: 'v1',
+  PORT: 3333
 };
 
+// JWT constants - only the structure, values come from config
+export const JWT_KEYS = {
+  SECRET: 'JWT_SECRET',
+  EXPIRES_IN: 'JWT_EXPIRES_IN',
+  REFRESH_EXPIRES_IN: 'JWT_REFRESH_EXPIRES_IN',
+};
+
+// Enums and other constants that don't change with environment
 export enum UserRole {
   ADMIN = 'admin',
   EDITOR = 'editor',
@@ -36,4 +41,7 @@ export const SWAGGER_CONFIG = {
   DESCRIPTION: 'API documentation for Confluence 2.0',
   VERSION: '1.0.0',
   TAG: 'confluence-api',
-}; 
+};
+
+// Export database constants
+export * from './db.constants'; 

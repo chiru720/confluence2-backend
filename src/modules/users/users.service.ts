@@ -1,76 +1,48 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { User } from './entities/user.entity';
 
 @Injectable()
 export class UsersService {
-  // Mock data to simulate database storage
-  private users: User[] = [];
-
-  async create(createUserDto: CreateUserDto): Promise<User> {
-    const newUser: User = {
-      id: Date.now().toString(),
-      firstName: createUserDto.firstName,
-      lastName: createUserDto.lastName,
-      email: createUserDto.email,
-      password: createUserDto.password, // Note: In a real app, this would be hashed
-      profilePicture: createUserDto.profilePicture,
-      role: 'user', // Default role
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      isActive: true,
-    };
-
-    this.users.push(newUser);
-    return this.sanitizeUser(newUser);
-  }
+  constructor(
+    @InjectRepository(User)
+    private usersRepository: Repository<User>,
+  ) {}
 
   async findAll(): Promise<User[]> {
-    return this.users.map(user => this.sanitizeUser(user));
+    return this.usersRepository.find();
   }
 
   async findOne(id: string): Promise<User> {
-    const user = this.users.find(user => user.id === id);
+    const user = await this.usersRepository.findOneBy({ id });
     if (!user) {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
-    return this.sanitizeUser(user);
+    return user;
   }
 
   async findByEmail(email: string): Promise<User | null> {
-    const user = this.users.find(user => user.email === email);
-    return user ? this.sanitizeUser(user) : null;
+    return this.usersRepository.findOneBy({ email });
+  }
+
+  async findByGoogleId(googleId: string): Promise<User | null> {
+    return this.usersRepository.findOneBy({ googleId });
+  }
+
+  async create(createUserDto: CreateUserDto): Promise<User> {
+    const user = this.usersRepository.create(createUserDto);
+    return this.usersRepository.save(user);
   }
 
   async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
-    const userIndex = this.users.findIndex(user => user.id === id);
-    if (userIndex === -1) {
-      throw new NotFoundException(`User with ID ${id} not found`);
-    }
-
-    const updatedUser = {
-      ...this.users[userIndex],
-      ...updateUserDto,
-      updatedAt: new Date(),
-    };
-
-    this.users[userIndex] = updatedUser;
-    return this.sanitizeUser(updatedUser);
+    await this.usersRepository.update(id, updateUserDto);
+    return this.findOne(id);
   }
 
   async remove(id: string): Promise<void> {
-    const userIndex = this.users.findIndex(user => user.id === id);
-    if (userIndex === -1) {
-      throw new NotFoundException(`User with ID ${id} not found`);
-    }
-
-    this.users.splice(userIndex, 1);
-  }
-
-  // Remove sensitive information before returning user data
-  private sanitizeUser(user: User): User {
-    const { password, ...result } = user;
-    return result as User;
+    await this.usersRepository.delete(id);
   }
 } 
