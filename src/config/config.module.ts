@@ -5,13 +5,15 @@ import { validate } from './validation.schema';
 import databaseConfig from './database.config';
 import jwtConfig from './jwt.config';
 import appConfig from './app.config';
+import googleConfig from './google.config';
+import frontendConfig from './frontend.config';
 
 @Global()
 @Module({
   imports: [
     NestConfigModule.forRoot({
       isGlobal: true,
-      load: [databaseConfig, jwtConfig, appConfig],
+      load: [databaseConfig, jwtConfig, appConfig, googleConfig, frontendConfig],
       validate,
       envFilePath: ['.env', '.env.development', '.env.production'],
     }),

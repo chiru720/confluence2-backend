@@ -43,5 +43,31 @@ export const SWAGGER_CONFIG = {
   TAG: 'confluence-api',
 };
 
+// Auth constants
+export const AUTH_CONSTANTS = {
+  STRATEGIES: {
+    JWT: 'jwt',
+    GOOGLE: 'google',
+  },
+  KEYS: {
+    JWT_SECRET: 'JWT_SECRET',
+    JWT_EXPIRATION: 'JWT_EXPIRATION',
+    GOOGLE_CLIENT_ID: 'GOOGLE_CLIENT_ID',
+    GOOGLE_CLIENT_SECRET: 'GOOGLE_CLIENT_SECRET',
+    GOOGLE_CALLBACK_URL: 'GOOGLE_CALLBACK_URL',
+    FRONTEND_URL: 'FRONTEND_URL',
+  },
+  ROUTES: {
+    GOOGLE_AUTH: 'google',
+    GOOGLE_CALLBACK: 'google/callback',
+    PROFILE: 'profile',
+    CALLBACK_PATH: 'auth/callback',
+  },
+  META: {
+    PUBLIC_KEY: 'isPublic',
+    ROLES_KEY: 'roles',
+  },
+};
+
 // Export database constants
 export * from './db.constants'; 

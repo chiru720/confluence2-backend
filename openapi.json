@@ -27,7 +27,7 @@
                 "schema": {
                   "example": {
                     "status": "ok",
-                    "timestamp": "2025-04-21T11:15:59.041Z",
+                    "timestamp": "2025-04-21T13:16:03.960Z",
                     "uptime": 1234,
                     "version": "1.0.0",
                     "environment": "development",
@@ -333,22 +333,85 @@
           "users"
         ]
       }
+    },
+    "/api/v1/auth/google": {
+      "get": {
+        "operationId": "AuthController_googleAuth",
+        "parameters": [],
+        "responses": {
+          "302": {
+            "description": "Redirect to Google authentication page"
+          }
+        },
+        "summary": "Initiate Google OAuth login",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/v1/auth/google/callback": {
+      "get": {
+        "operationId": "AuthController_googleAuthCallback",
+        "parameters": [],
+        "responses": {
+          "302": {
+            "description": "Redirect to frontend with authentication token"
+          }
+        },
+        "summary": "Google OAuth callback",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/v1/auth/profile": {
+      "get": {
+        "operationId": "AuthController_getProfile",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Returns the current authenticated user profile"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "summary": "Get current user profile",
+        "tags": [
+          "auth"
+        ]
+      }
     }
   },
   "info": {
     "title": "Confluence 2.0 API",
-    "description": "API documentation for Confluence 2.0",
-    "version": "1.0.0",
+    "description": "The API documentation for Confluence 2.0",
+    "version": "1.0",
     "contact": {}
   },
   "tags": [],
   "servers": [],
   "components": {
     "securitySchemes": {
-      "bearer": {
+      "JWT-auth": {
         "scheme": "bearer",
         "bearerFormat": "JWT",
-        "type": "http"
+        "type": "http",
+        "name": "JWT",
+        "description": "Enter JWT token",
+        "in": "header"
+      },
+      "google-oauth2": {
+        "type": "oauth2",
+        "flows": {
+          "implicit": {
+            "authorizationUrl": "api/auth/google",
+            "scopes": {
+              "email": "Email access",
+              "profile": "Profile information"
+            }
+          }
+        }
       }
     },
     "schemas": {

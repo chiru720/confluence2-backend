@@ -19,8 +19,12 @@ async function bootstrap() {
   // Apply global prefix for all routes
   app.setGlobalPrefix(globalPrefix);
 
-  // Enable CORS
-  app.enableCors();
+  // Enable CORS with specific configuration
+  app.enableCors({
+    origin: configService.get('frontend.url', 'http://localhost:3000'),
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    credentials: true,
+  });
 
   // Use global validation pipe
   app.useGlobalPipes(new ValidationPipe({
@@ -31,10 +35,35 @@ async function bootstrap() {
 
   // Setup Swagger documentation
   const config = new DocumentBuilder()
-    .setTitle(SWAGGER_CONFIG.TITLE)
-    .setDescription(SWAGGER_CONFIG.DESCRIPTION)
-    .setVersion(SWAGGER_CONFIG.VERSION)
-    .addBearerAuth()
+    .setTitle('Confluence 2.0 API')
+    .setDescription('The API documentation for Confluence 2.0')
+    .setVersion('1.0')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        name: 'JWT',
+        description: 'Enter JWT token',
+        in: 'header',
+      },
+      'JWT-auth',
+    )
+    .addOAuth2(
+      {
+        type: 'oauth2',
+        flows: {
+          implicit: {
+            authorizationUrl: `${process.env.API_PREFIX}/auth/google`,
+            scopes: {
+              'email': 'Email access',
+              'profile': 'Profile information',
+            },
+          },
+        },
+      },
+      'google-oauth2',
+    )
     .build();
   
   const document = SwaggerModule.createDocument(app, config);

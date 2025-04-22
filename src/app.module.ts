@@ -5,13 +5,14 @@ import { ConfigModule } from './config/config.module';
 import { DatabaseModule } from './core/database/database.module';
 import { HealthModule } from './core/health/health.module';
 import { DocumentsModule } from './modules/documents/documents.module';
+import { UsersModule } from './modules/users/users.module';
 
-// Import Users module conditionally to prevent errors if it doesn't exist yet
-let UsersModule;
+// Import Auth module conditionally to prevent errors if it doesn't exist yet
+let AuthModule;
 try {
-  UsersModule = require('./modules/users/users.module').UsersModule;
+  AuthModule = require('./core/auth/auth.module').AuthModule;
 } catch (e) {
-  console.warn('UsersModule not found, skipping import');
+  console.warn('AuthModule not found, skipping import');
 }
 
 @Module({
@@ -22,7 +23,8 @@ try {
     HealthModule,
     // Feature modules next
     DocumentsModule,
-    ...(UsersModule ? [UsersModule] : []),
+    UsersModule,
+    ...(AuthModule ? [AuthModule] : []),
   ],
   controllers: [AppController],
   providers: [AppService],
